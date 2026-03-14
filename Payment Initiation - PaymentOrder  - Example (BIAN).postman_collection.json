@@ -19,7 +19,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"externalId\": \"ext-1317\",\n    \"debtorIban\": \"ES7921000813610123456789\",\n    \"creditorIban\": \"ES7921000813610123456789\",\n    \"amount\": 100.00,\n    \"currency\": \"EUR\",\n    \"remittanceInfo\": \"Pago factura 2026-03\",\n    \"requestedExecutionDate\": \"2026-03-15\"\n}"
+          "raw": "{\n    \"debtorIban\": \"ES7921000813610123456789\",\n    \"creditorIban\": \"ES7921000813610123456789\",\n    \"amount\": 100.00,\n    \"currency\": \"EUR\",\n    \"remittanceInfo\": \"Pago factura 2026-03\",\n    \"requestedExecutionDate\": \"2026-03-15\"\n}"
         },
         "url": {
           "raw": "http://localhost:8080/payment-initiation/payment-orders",

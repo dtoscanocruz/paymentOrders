@@ -1,0 +1,53 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: payments-db
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${DB_NAME:-payments}"
+      MYSQL_USER: "${DB_USER}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+    ports:
+      - "3307:3306" # Changed host port to 3307 to avoid conflict with local MySQL on 3306
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+
+  app:
+    build: .
+    image: hpayments:latest
+    container_name: hpayments-app
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_R2DBC_URL: "${SPRING_R2DBC_URL}"
+      R2DBC_USERNAME: "${R2DBC_USERNAME}"
+      R2DBC_PASSWORD: "${R2DBC_PASSWORD}"
+      RDBMS_USERNAME: "${RDBMS_USERNAME}"
+      RDBMS_PASSWORD: "${RDBMS_PASSWORD}"
+      DB_HOST: db
+      DB_PORT: 3306
+    ports:
+      - "8080:8080"
+    restart: on-failure
+
+  healthcheck:
+    image: curlimages/curl:8.2.1
+    depends_on:
+      - app
+    entrypoint: ["/bin/sh","-c","echo 'Waiting for app actuator/health...'; until curl -fsS http://app:8080/actuator/health | grep -q 'UP'; do echo '.'; sleep 1; done; echo 'app is UP'"]
+    # This service exits 0 when the app reports UP; run it with `docker compose run --rm healthcheck` to block until healthy.
+
+volumes:
+  db_data:
+    driver: local

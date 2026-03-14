@@ -1,0 +1,26 @@
+spring:
+  r2dbc:
+    # Default includes useful params for local MySQL development. You can override by setting env var R2DBC_URL.
+    url: ${R2DBC_URL:r2dbc:mysql://root:Ynep21332133.@localhost:3306/payments?allowPublicKeyRetrieval=true&useSSL=false}
+    username: ${R2DBC_USERNAME:root}
+    password: ${R2DBC_PASSWORD:Ynep21332133.}
+    pool:
+      initial-size: 5
+      max-size: 20
+  sql:
+    init:
+      mode: never
+  datasource:
+    url: jdbc:mysql://localhost:3306/payments
+    username: ${RDBMS_USERNAME:root}
+    password: ${RDBMS_PASSWORD:Ynep21332133.}
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO
+    com.example.hpayments: DEBUG
+    org.springframework.r2dbc: DEBUG
+    io.r2dbc: DEBUG

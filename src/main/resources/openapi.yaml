@@ -1,0 +1,200 @@
+openapi: 3.0.3
+info:
+  title: PaymentOrderService - BIAN Payment Initiation (PaymentOrder)
+  version: "1.0.0"
+  description: |
+    REST contract generated from PaymentOrderService.wsdl and aligned with BIAN
+    Service Domain: Payment Initiation (Behavior Qualifier: PaymentOrder).
+  x-bian-domain: PaymentInitiation
+  x-bian-functional-qualifier: PaymentOrder
+servers:
+  - url: /api
+    description: Local adapter/gateway path (adjust as needed)
+paths:
+  /payment-initiation/payment-orders:
+    post:
+      summary: Submit a payment order (Create PaymentOrder)
+      operationId: submitPaymentOrder
+      tags:
+        - PaymentOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitPaymentOrderRequest'
+            example:
+              externalId: "ext-123"
+              debtorIban: "DE89370400440532013000"
+              creditorIban: "FR7630006000011234567890189"
+              amount: 100.0
+              currency: "EUR"
+              remittanceInfo: "Invoice 99"
+              requestedExecutionDate: "2026-03-15"
+      responses:
+        '201':
+          description: Payment order accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmitPaymentOrderResponse'
+              example:
+                paymentOrderId: "po-456"
+                status: "SUBMITTED"
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /payment-initiation/payment-orders/{paymentOrderId}/status:
+    get:
+      summary: Get the status of a PaymentOrder (Retrieve PaymentOrder status)
+      operationId: getPaymentOrderStatus
+      tags:
+        - PaymentOrder
+      parameters:
+        - name: paymentOrderId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Identifier of the payment order
+      responses:
+        '200':
+          description: Current payment order status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPaymentOrderStatusResponse'
+              example:
+                paymentOrderId: "po-456"
+                status: "SETTLED"
+                lastUpdate: "2026-03-12T10:20:30Z"
+        '404':
+          description: Payment order not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /payment-initiation/payment-orders/{paymentOrderId}:
+    get:
+      summary: Get a submitted PaymentOrder by id (Retrieve PaymentOrder)
+      operationId: getPaymentOrder
+      tags:
+        - PaymentOrder
+      parameters:
+        - name: paymentOrderId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Identifier of the payment order
+      responses:
+        '200':
+          description: Payment order found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmitPaymentOrderResponse'
+              example:
+                paymentOrderId: "po-456"
+                status: "SUBMITTED"
+        '404':
+          description: Payment order not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    SubmitPaymentOrderRequest:
+      type: object
+      required:
+        - externalId
+        - debtorIban
+        - creditorIban
+        - amount
+        - currency
+        - requestedExecutionDate
+      properties:
+        externalId:
+          type: string
+          description: Client-provided external identifier for idempotency
+        debtorIban:
+          type: string
+          description: Debtor IBAN
+          pattern: '^[A-Z]{2}\d{2}[A-Z0-9]{1,30}$'
+          example: 'DE89370400440532013000'
+        creditorIban:
+          type: string
+          description: Creditor IBAN
+          pattern: '^[A-Z]{2}\d{2}[A-Z0-9]{1,30}$'
+          example: 'FR7630006000011234567890189'
+        amount:
+          type: number
+          format: double
+          description: Amount to transfer
+        currency:
+          type: string
+          description: ISO currency code (e.g., EUR)
+          pattern: '^[A-Z]{3}$'
+          example: 'EUR'
+        remittanceInfo:
+          type: string
+          description: Optional remittance/reference information
+        requestedExecutionDate:
+          type: string
+          format: date
+          description: Requested execution date (YYYY-MM-DD)
+    SubmitPaymentOrderResponse:
+      type: object
+      required:
+        - paymentOrderId
+        - status
+      properties:
+        paymentOrderId:
+          type: string
+          description: Internal identifier assigned to the payment order
+        status:
+          type: string
+          description: Processing status (e.g., SUBMITTED, PENDING, SETTLED, REJECTED)
+    GetPaymentOrderStatusResponse:
+      type: object
+      required:
+        - paymentOrderId
+        - status
+        - lastUpdate
+      properties:
+        paymentOrderId:
+          type: string
+        status:
+          type: string
+        lastUpdate:
+          type: string
+          format: date-time
+          description: Timestamp of last status update (ISO 8601)
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - BearerAuth: []
+tags:
+  - name: PaymentOrder
+    description: Operations related to the PaymentOrder behavior qualifier within BIAN Payment Initiation
+x-bian-mapping:
+  serviceDomain: PaymentInitiation
+  behaviorQualifier: PaymentOrder
+  notes: "Mapped from legacy SOAP PaymentOrder operations: SubmitPaymentOrder, GetPaymentOrderStatus"

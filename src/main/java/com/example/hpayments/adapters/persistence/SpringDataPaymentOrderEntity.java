@@ -1,0 +1,31 @@
+package com.example.hpayments.adapters.persistence;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table("payment_orders")
+public class SpringDataPaymentOrderEntity {
+    @Id
+    private Long id;
+    private String externalId;
+    private String debtorIban;
+    private String creditorIban;
+    private BigDecimal amount;
+    private String currency;
+    private String remittanceInfo;
+    private LocalDate requestedExecutionDate;
+    private String status;
+    private LocalDateTime lastUpdate;
+}

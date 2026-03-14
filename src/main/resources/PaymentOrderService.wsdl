@@ -1,0 +1,96 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="PaymentOrderService"
+             targetNamespace="http://legacy.bank/payments"
+             xmlns:tns="http://legacy.bank/payments"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <types>
+    <xsd:schema targetNamespace="http://legacy.bank/payments">
+      <xsd:element name="SubmitPaymentOrderRequest">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="externalId" type="xsd:string"/>
+            <xsd:element name="debtorIban" type="xsd:string"/>
+            <xsd:element name="creditorIban" type="xsd:string"/>
+            <xsd:element name="amount" type="xsd:decimal"/>
+            <xsd:element name="currency" type="xsd:string"/>
+            <xsd:element name="remittanceInfo" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="requestedExecutionDate" type="xsd:date"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="SubmitPaymentOrderResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="paymentOrderId" type="xsd:string"/>
+            <xsd:element name="status" type="xsd:string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+
+      <xsd:element name="GetPaymentOrderStatusRequest">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="paymentOrderId" type="xsd:string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="GetPaymentOrderStatusResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="paymentOrderId" type="xsd:string"/>
+            <xsd:element name="status" type="xsd:string"/>
+            <xsd:element name="lastUpdate" type="xsd:dateTime"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:schema>
+  </types>
+
+  <message name="SubmitPaymentOrderRequestMessage">
+    <part name="payload" element="tns:SubmitPaymentOrderRequest"/>
+  </message>
+  <message name="SubmitPaymentOrderResponseMessage">
+    <part name="payload" element="tns:SubmitPaymentOrderResponse"/>
+  </message>
+
+  <message name="GetPaymentOrderStatusRequestMessage">
+    <part name="payload" element="tns:GetPaymentOrderStatusRequest"/>
+  </message>
+  <message name="GetPaymentOrderStatusResponseMessage">
+    <part name="payload" element="tns:GetPaymentOrderStatusResponse"/>
+  </message>
+
+  <portType name="PaymentOrderPortType">
+    <operation name="SubmitPaymentOrder">
+      <input message="tns:SubmitPaymentOrderRequestMessage"/>
+      <output message="tns:SubmitPaymentOrderResponseMessage"/>
+    </operation>
+    <operation name="GetPaymentOrderStatus">
+      <input message="tns:GetPaymentOrderStatusRequestMessage"/>
+      <output message="tns:GetPaymentOrderStatusResponseMessage"/>
+    </operation>
+  </portType>
+
+  <binding name="PaymentOrderBinding" type="tns:PaymentOrderPortType">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="SubmitPaymentOrder">
+      <soap:operation soapAction="submit"/>
+      <input><soap:body use="literal"/></input>
+      <output><soap:body use="literal"/></output>
+    </operation>
+    <operation name="GetPaymentOrderStatus">
+      <soap:operation soapAction="status"/>
+      <input><soap:body use="literal"/></input>
+      <output><soap:body use="literal"/></output>
+    </operation>
+  </binding>
+
+  <service name="PaymentOrderService">
+    <port name="PaymentOrderPort" binding="tns:PaymentOrderBinding">
+      <soap:address location="http://soap-mock:8081/legacy/payments"/>
+    </port>
+  </service>
+</definitions>

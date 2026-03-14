@@ -1,0 +1,16 @@
+target/
+*.log
+*.tmp
+*.bak
+.settings/
+.idea/
+.vscode/
+**/.DS_Store
+**/Thumbs.db
+**/.git
+**/.gitignore
+.m2/
+
+# IDE and OS files
+*.class
+*.jar
